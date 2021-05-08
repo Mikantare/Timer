@@ -10,6 +10,8 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
 
     private boolean timerRun = false;
@@ -22,22 +24,43 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        init();
+
+        seekBarTimer.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int mlSecs = seekBarTimer.getProgress();
+                setTextViewTimer(mlSecs);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+    }
+
+    public void init() {
         seekBarTimer = findViewById(R.id.seekBarTimer);
         textViewTimer = findViewById(R.id.textViewTimer);
         buttonStart = findViewById(R.id.buttonStart);
-        seekBarTimer.setProgress(30);
-        myTimer = new CountDownTimer(seekBarTimer.getProgress() * 1000, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                textViewTimer.setText(String.valueOf(millisUntilFinished / 1000));
-            }
+        seekBarTimer.setMax(600000);
+        seekBarTimer.setProgress(30000);
 
-            @Override
-            public void onFinish() {
-
-            }
-        };
     }
+
+    public void setTextViewTimer (int seconds) {
+        int minutes = seconds / 60000;
+        int secs = (seconds % 60000) / 1000;
+        textViewTimer.setText(String.format(Locale.getDefault(), "%02d:%02d", minutes,secs));
+        }
+
 //        final Handler handler = new Handler();
 //        Runnable runnable = new Runnable() {
 //            @Override
@@ -46,11 +69,24 @@ public class MainActivity extends AppCompatActivity {
 //                handler.postDelayed(this,2000);
 //            }
 //        }; handler.post(runnable);
+     public void startTimer (int mlSecs) {
+         myTimer = new CountDownTimer(mlSecs , 1000) {
+             @Override
+             public void onTick(long millisUntilFinished) {
+                 setTextViewTimer((int) millisUntilFinished);
+             }
 
+             @Override
+             public void onFinish() {
+
+             }
+         };
+         myTimer.start();
+     }
 
     public void clickTimer(View view) {
         if (!timerRun) {
-          myTimer.start();
+          startTimer(seekBarTimer.getProgress());
             timerRun = true;
             buttonStart.setText("Stop");
             seekBarTimer.setEnabled(false);
@@ -60,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
             seekBarTimer.setEnabled(true);
             myTimer.cancel();
             timerRun = false;
+            init();
         }
     }
 }
