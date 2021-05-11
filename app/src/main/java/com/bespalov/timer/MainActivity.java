@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         buttonStart = findViewById(R.id.buttonStart);
         seekBarTimer.setMax(600000);
         seekBarTimer.setProgress(30000);
+        setTextViewTimer(seekBarTimer.getProgress());
 
     }
 
